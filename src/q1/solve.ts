@@ -183,6 +183,31 @@ const checkTimeRule = (
  */
 const orderReasons = (reasons: string[]): string[] => {
   // TODO ここを実装
+  let newReasons = []
+
+  // 各理由の出現回数を数えるマップを作成
+  let reasonsCount = 
+  new Map([["対象の映画の入場には大人の同伴が必要です", 0], 
+  ['対象の映画は年齢制限により閲覧できません', 0], 
+  ['対象のチケットではその座席をご利用いただけません', 0]
+  ]);
+
+  for(let r of reasons){
+    if(reasonsCount.has(r)){
+      reasonsCount.set(r, reasonsCount.get(r)! + 1);
+    }
+  }
+
+  // 存在する理由を順番に newReasons 配列に代入する
+  for(let [key, value] of reasonsCount){
+    if(value != 0){
+      newReasons.push(key);
+    }
+  }
+
+// reasons 配列に再代入する
+  reasons = newReasons;
+
   return reasons;
 };
 
