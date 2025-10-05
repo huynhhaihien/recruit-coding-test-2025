@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
+import { ok } from "node:assert";
+
 export type Age = 'Adult' | 'Young' | 'Child';
 export type Rating = 'G' | 'PG-12' | 'R18+';
 
@@ -88,6 +90,14 @@ export const solve = (input: string): string => {
 
   // TODO 「全体不可」のときは価格を出さず、NG行の理由だけを出力する
 
+  // もしNGのチケットがある場合
+  if(anyNg){
+  // NGのチケットだけを取り出す
+  // その理由テキストを取り出す
+  // 改行でつなげて出力する
+    return evaluated.filter((e) => !e.ok).map((e) => e.text).join('\n');
+  }
+  // すべてOKの場合
   return evaluated.map((e) => e.text).join('\n');
 };
 
@@ -118,7 +128,15 @@ const parseLine = (line: string): Ticket | null => {
   const durM = parseInt(dur[2], 10);
   const row = seat[1].toUpperCase();
   const col = parseInt(seat[2], 10);
+  
+  if (startHH < 0 || startHH > 23) return null; // 時間（時）は 0〜23
+  if (startMM < 0 || startMM > 59) return null; // 時間（分）は 0〜59
+  if (durH < 0) return null;  // 上映時間（時間）は 0以上
+  if (durM < 0 || durM > 59) return null; // 上映時間（分）は 0〜59
+  if (col < 1 || col > 24) return null; // 座席番号は 1〜24
+  if (!'ABCDEFGHIJKL'.includes(row)) return null; // 行は A〜L のみ
 
+  
   return {
     age: ageRaw as Age,
     rating: ratingRaw as Rating,
@@ -169,6 +187,13 @@ const checkRating = (
  */
 const checkSeat = (t: Ticket): boolean => {
   // TODO ここを実装
+
+   // J〜L の行は Child 禁止
+  const restrictedRows = ['J', 'K', 'L'];
+  
+  if (restrictedRows.includes(t.row) && t.age === 'Child') {
+    return false;
+  }
   return true;
 };
 
@@ -186,6 +211,23 @@ const checkTimeRule = (
   hasChildInSet: boolean
 ): boolean => {
   // TODO ここを実装
+
+  const LIMIT_MINUTES_CHILD = 16 * 60;
+  const LIMIT_MINUTES_YOUNG = 18 * 60;
+  if(!hasAdultInSet){
+    if(t.age === 'Child' && endMinutes > LIMIT_MINUTES_CHILD){
+      return false;
+    }
+    if(t.age === 'Young'){
+      if(hasChildInSet && endMinutes > LIMIT_MINUTES_CHILD){
+        return false;
+      }
+      if(endMinutes > LIMIT_MINUTES_YOUNG){
+        return false;
+      }
+    }
+    return true;
+  }
   return true;
 };
 
