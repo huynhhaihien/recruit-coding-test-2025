@@ -149,7 +149,18 @@ const checkRating = (
   hasAdultInSet: boolean
 ): boolean => {
   // TODO ここを実装
+
+  // R18+: Adult 以外は不可
+  if(rating === 'R18+' && age !== 'Adult'){
+    return false;
+  }
+  // PG-12: Child の場合は Adult 同伴必須
+  if(rating === 'PG-12' && age === 'Child' && !hasAdultInSet){
+    return false;
+  }
+  // その他は可
   return true;
+  
 };
 
 /**
@@ -183,11 +194,11 @@ const checkTimeRule = (
  */
 const orderReasons = (reasons: string[]): string[] => {
   // TODO ここを実装
-  let newReasons = []
+  let newReasons: string[] = []
 
   // 各理由の出現回数を数えるマップを作成
   let reasonsCount = 
-  new Map([["対象の映画の入場には大人の同伴が必要です", 0], 
+  new Map([['対象の映画の入場には大人の同伴が必要です', 0], 
   ['対象の映画は年齢制限により閲覧できません', 0], 
   ['対象のチケットではその座席をご利用いただけません', 0]
   ]);
